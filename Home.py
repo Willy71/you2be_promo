@@ -33,7 +33,7 @@ SHEET_NAME = 'youtube_videos'
 try:
     sheet = gc.open_by_key(SPREADSHEET_KEY).worksheet(SHEET_NAME)
 except gspread.exceptions.SpreadsheetNotFound:
-    st.error(f"No se encontró la hoja de cálculo con la clave '{SPREADSHEET_KEY}'.")
+    st.error(f"A planilha com a chave não foi encontrada '{SPREADSHEET_KEY}'.")
 
 # Funciones auxiliares
 def centrar_texto(texto, tamanho, color):
@@ -56,7 +56,7 @@ def get_video_title(url):
         yt = YouTube(url)
         return yt.title
     except Exception as e:
-        st.error(f"Error al obtener el título del video: {e}")
+        st.error(f"Erro ao obter o título do vídeo: {e}")
         return None
 
 # Eliminar un video de Google Sheets
@@ -73,7 +73,7 @@ def main():
     df = load_videos()
 
     if df.empty:
-        st.warning("No se encontraron videos en la base de datos.")
+        st.warning("Nenhum vídeo encontrado no banco de dados.")
         return
 
     # Sidebar para seleccionar videos
@@ -92,7 +92,7 @@ def main():
         if not df_filtered.empty:
             df_titles = df_filtered["Title"].unique()
             df_titles = sorted(df_titles)
-            slb_2 = st.radio("Selecciona un video para reproducir", df_titles)
+            slb_2 = st.radio("Selecione um vídeo para reproduzir", df_titles)
             
             # Filtrar el DataFrame por el título seleccionado
             df_video = df_filtered[df_filtered["Title"] == slb_2].iloc[0]
@@ -112,34 +112,34 @@ def main():
     with st.container():
         col15, col16, col17, col18, col19 = st.columns([3,1,1,1,2])
         with col15:         
-            if st.button("Eliminar Video"):
+            if st.button("Excluir vídeo"):
                 delete_video(df_video['Url'])
-                st.success("Video eliminado")
+                st.success("Vídeo excluído")
                 st.rerun()
 
     # Sección para agregar videos
     with st.sidebar:
         st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#1717dc;" /> """, unsafe_allow_html=True)
-        centrar_texto("Agregar video", 2, "white")
+        centrar_texto("Adicionar vídeo", 2, "white")
         
-        video_url = st.text_input("URL del video de YouTube:")
-        category = st.text_input("Ingresa la categoría del video:")
+        video_url = st.text_input("URL do video de YouTube:")
+        category = st.text_input("Insira a categoria do vídeo:")
 
-        if st.button("Agregar Video"):
+        if st.button("Adicionar vídeo"):
             if video_url and category:
                 video_id = extract_video_id(video_url)
                 if video_id:
                     video_title = get_video_title(video_url)
                     if video_title:
                         add_video(category, video_url, video_title)
-                        st.success(f"Video '{video_title}' agregado a la categoría '{category}'")
+                        st.success(f"Video '{video_title}' adicionado à categoria '{category}'")
                         st.rerun()
                     else:
-                        st.error("No se pudo obtener el título del video.")
+                        st.error("Não foi possível obter o título do vídeo.")
                 else:
-                    st.error("Por favor, ingresa una URL de YouTube válida.")
+                    st.error("Insira um URL válido do YouTube.")
             else:
-                st.error("Por favor, ingresa una URL y una categoría.")
+                st.error("Insira um URL e uma categoria.")
 
 if __name__ == "__main__":
     main()
