@@ -1,5 +1,4 @@
 gspread
 oauth2client
 google-api-python-client
-yt_dlp
 numpy==1.26.4
