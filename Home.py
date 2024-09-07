@@ -7,10 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 
 # Configuración de la página
-st.set_page_config(
-    page_title="You 2 be",
-    page_icon="▶️",
-)
+st.set_page_config(page_title="You 2 be", page_icon="▶️")
 
 # Reducir espacio en la parte superior
 reduce_space ="""
@@ -22,7 +19,6 @@ reduce_space ="""
             """
 st.markdown(reduce_space, unsafe_allow_html=True)
 
-#=============================================================================================================================
 # Conexión con Google Sheets
 SERVICE_ACCOUNT_INFO = st.secrets["gsheets"]
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -31,6 +27,7 @@ gc = gspread.authorize(credentials)
 SPREADSHEET_KEY = '11IRRawCTs9uevO3muLz0EUp8iRFQLzJy8BjXhnzIaxk'
 SHEET_NAME = 'youtube_videos'
 
+# Intentar acceder a la hoja
 try:
     sheet = gc.open_by_key(SPREADSHEET_KEY).worksheet(SHEET_NAME)
 except gspread.exceptions.SpreadsheetNotFound:
@@ -46,21 +43,17 @@ def load_videos():
     return df
 
 def extract_video_id(url):
-    # Esta regex soporta tanto URLs completas como abreviadas
     regex = r'(?:https?://)?(?:www\.)?(?:youtube\.com|youtu\.be)/(?:watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})'
     match = re.match(regex, url)
     if match:
-        return match.group(1)  # Extraer el video_id correctamente
+        return match.group(1)
     return None
-
 
 def get_video_title(url):
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Verifica si la solicitud fue exitosa
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Buscar la meta etiqueta de título de Open Graph
         title_tag = soup.find('meta', property='og:title')
         if title_tag and 'content' in title_tag.attrs:
             return title_tag['content']
@@ -80,8 +73,8 @@ def delete_video(url):
 def add_video(category, url, title):
     sheet.append_row([category, url, title])
 
+# Función principal
 def main():
-    # Cargar los videos desde Google Sheets
     df = load_videos()
 
     if df.empty:
@@ -90,41 +83,36 @@ def main():
 
     # Sidebar para seleccionar videos
     with st.sidebar:
-        #centrar_texto("Videos", 2, 'white')
-
-        # Mostrar las categorías
         df_1 = df["Category"].unique()
         df_1_1 = sorted(df_1)
         slb_1 = st.selectbox('Categoria', df_1_1)
 
-        # Filtrar videos por categoría
         df_filtered = df[df["Category"] == slb_1]
 
-        # Mostrar los títulos en radio buttons
         if not df_filtered.empty:
             df_titles = df_filtered["Title"].unique()
             df_titles = sorted(df_titles)
             slb_2 = st.radio("Selecione um vídeo para reproduzir", df_titles)
-            
-            # Filtrar el DataFrame por el título seleccionado
+
             df_video = df_filtered[df_filtered["Title"] == slb_2].iloc[0]
 
-    # Reproductor principal de video
+            # Generar lista de reproducción con los video_ids de la categoría seleccionada
+            video_ids = [extract_video_id(url) for url in df_filtered['Url']]
+            playlist = ','.join(video_ids)  # Crear la lista de reproducción en formato de string
+
+    # Reproductor principal de video con autoplay y lista de reproducción
     st.markdown(f"""
     <div style="display: flex; justify-content: center;">
         <iframe id="player" type="text/html" width="832" height="507"
-        src="https://www.youtube.com/embed/{extract_video_id(df_video['Url'])}?autoplay=1&controls=1&loop=1"
+        src="https://www.youtube.com/embed/{extract_video_id(df_video['Url'])}?playlist={playlist}&autoplay=1&controls=1&loop=1"
         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
     """, unsafe_allow_html=True)
-    # autoplay=1&controls=1
-    
-    st.text("")
-    
+
     # Botón para eliminar el video
     with st.container():
         col15, col16, col17, col18, col19 = st.columns([3,1,1,1,2])
-        with col15:         
+        with col15:
             if st.button("Excluir vídeo"):
                 delete_video(df_video['Url'])
                 st.success("Vídeo excluído")
