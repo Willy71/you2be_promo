@@ -45,12 +45,14 @@ def load_videos():
     df = pd.DataFrame(rows)
     return df
 
-def extract_video_id(url):  
-    regex = r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+\?v=([^&=%\?]{11})'
+def extract_video_id(url):
+    # Esta regex soporta tanto URLs completas como abreviadas
+    regex = r'(?:https?://)?(?:www\.)?(?:youtube\.com|youtu\.be)/(?:watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})'
     match = re.match(regex, url)
     if match:
-        return match.group(5)  # Aseguramos que se extrae el video_id correctamente
+        return match.group(1)  # Extraer el video_id correctamente
     return None
+
 
 def get_video_title(url):
     try:
