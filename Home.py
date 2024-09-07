@@ -20,6 +20,7 @@ reduce_space ="""
             </style>
             """
 st.markdown(reduce_space, unsafe_allow_html=True)
+st.sidebar.markdown(reduce_space, unsafe_allow_html=True)
 
 #=============================================================================================================================
 # Conexión con Google Sheets
