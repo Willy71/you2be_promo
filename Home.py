@@ -119,7 +119,7 @@ def main():
 
     # Sección para agregar videos
     with st.sidebar:
-        st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#1717dc;" /> """, unsafe_allow_html=True)
+        st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#1717dc;" /> """, unsafe_allow_html=True)
         centrar_texto("Agregar video", 2, "white")
         
         video_url = st.text_input("URL del video de YouTube:")
