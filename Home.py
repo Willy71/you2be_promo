@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import gspread
 from google.oauth2.service_account import Credentials
-from pytube import YouTube
+import yt_dlp
 
 # Configuración de la página
 st.set_page_config(
@@ -53,10 +53,11 @@ def extract_video_id(url):
 
 def get_video_title(url):
     try:
-        yt = YouTube(url)
-        return yt.title
+        ydl = yt_dlp.YoutubeDL()
+        info_dict = ydl.extract_info(url, download=False)
+        return info_dict.get('title', None)
     except Exception as e:
-        st.error(f"Erro ao obter o título do vídeo: {e}")
+        st.error(f"Error al obtener el título del video: {e}")
         return None
 
 # Eliminar un video de Google Sheets
