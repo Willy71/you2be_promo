@@ -113,10 +113,11 @@ def main():
     st.markdown(f"""
     <div style="display: flex; justify-content: center;">
         <iframe id="player" type="text/html" width="832" height="507"
-        src="https://www.youtube.com/embed/{extract_video_id(df_video['Url'])}?autoplay=1&controls=1"
+        src="https://www.youtube.com/embed/{extract_video_id(df_video['Url'])}?autoplay=1&controls=1&loop=1"
         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
     """, unsafe_allow_html=True)
+    # autoplay=1&controls=1
     
     st.text("")
     
