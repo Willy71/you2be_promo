@@ -76,7 +76,7 @@ def delete_video(url):
         sheet.delete_rows(cell.row)
 
 def add_video(category, url, title):
-    sheet.append_row([category, title, url])
+    sheet.append_row([category, url, title])
 
 def main():
     # Cargar los videos desde Google Sheets
