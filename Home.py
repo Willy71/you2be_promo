@@ -36,8 +36,8 @@ except gspread.exceptions.SpreadsheetNotFound:
     st.error(f"A planilha com a chave não foi encontrada '{SPREADSHEET_KEY}'.")
 
 # Configuración de la API de YouTube
-YOUTUBE_API_KEY = 'YOUR_YOUTUBE_API_KEY'
-youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
+YOUTUBE_API_KEY = st.secrets["youtube"]
+youtube = YOUTUBE_API_KEY
 
 # Funciones auxiliares
 def centrar_texto(texto, tamanho, color):
