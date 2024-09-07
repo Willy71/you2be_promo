@@ -7,7 +7,10 @@ from bs4 import BeautifulSoup
 import requests
 
 # Configuración de la página
-st.set_page_config(page_title="You 2 be", page_icon="▶️")
+st.set_page_config(
+    page_title="You 2 be",
+    page_icon="▶️",
+)
 
 # Reducir espacio en la parte superior
 reduce_space ="""
@@ -27,7 +30,6 @@ gc = gspread.authorize(credentials)
 SPREADSHEET_KEY = '11IRRawCTs9uevO3muLz0EUp8iRFQLzJy8BjXhnzIaxk'
 SHEET_NAME = 'youtube_videos'
 
-# Intentar acceder a la hoja
 try:
     sheet = gc.open_by_key(SPREADSHEET_KEY).worksheet(SHEET_NAME)
 except gspread.exceptions.SpreadsheetNotFound:
@@ -52,7 +54,7 @@ def extract_video_id(url):
 def get_video_title(url):
     try:
         response = requests.get(url)
-        response.raise_for_status()
+        response.raise_for_status()  
         soup = BeautifulSoup(response.text, 'html.parser')
         title_tag = soup.find('meta', property='og:title')
         if title_tag and 'content' in title_tag.attrs:
@@ -64,7 +66,6 @@ def get_video_title(url):
         st.error(f"Error al obtener el título del video: {e}")
         return None
 
-# Eliminar un video de Google Sheets
 def delete_video(url):
     cell = sheet.find(url)
     if cell:
@@ -73,7 +74,6 @@ def delete_video(url):
 def add_video(category, url, title):
     sheet.append_row([category, url, title])
 
-# Función principal
 def main():
     df = load_videos()
 
@@ -81,7 +81,6 @@ def main():
         st.warning("Nenhum vídeo encontrado no banco de dados.")
         return
 
-    # Sidebar para seleccionar videos
     with st.sidebar:
         df_1 = df["Category"].unique()
         df_1_1 = sorted(df_1)
@@ -92,33 +91,57 @@ def main():
         if not df_filtered.empty:
             df_titles = df_filtered["Title"].unique()
             df_titles = sorted(df_titles)
-            slb_2 = st.radio("Selecione um vídeo para reproduzir", df_titles)
-
+            
+            # Guardamos el índice inicial para saber cuál video está seleccionado
+            initial_index = 0
+            slb_2 = st.radio("Selecione um vídeo para reproduzir", df_titles, index=initial_index)
+            
             df_video = df_filtered[df_filtered["Title"] == slb_2].iloc[0]
 
-            # Generar lista de reproducción con los video_ids de la categoría seleccionada
-            video_ids = [extract_video_id(url) for url in df_filtered['Url']]
-            playlist = ','.join(video_ids)  # Crear la lista de reproducción en formato de string
-
-    # Reproductor principal de video con autoplay y lista de reproducción
+    # Reproductor principal de video
+    video_id = extract_video_id(df_video['Url'])
+    
     st.markdown(f"""
     <div style="display: flex; justify-content: center;">
         <iframe id="player" type="text/html" width="832" height="507"
-        src="https://www.youtube.com/embed/{extract_video_id(df_video['Url'])}?playlist={playlist}&autoplay=1&controls=1&loop=1"
+        src="https://www.youtube.com/embed/{video_id}?autoplay=1&controls=1&loop=1"
         frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
+    """, unsafe_allow_html=True)
+    
+    # JavaScript para avanzar automáticamente al siguiente video cuando uno termina
+    st.markdown(f"""
+    <script>
+    var player;
+    function onYouTubeIframeAPIReady() {{
+        player = new YT.Player('player', {{
+            events: {{
+                'onStateChange': onPlayerStateChange
+            }}
+        }});
+    }}
+
+    function onPlayerStateChange(event) {{
+        if (event.data === YT.PlayerState.ENDED) {{
+            var currentIndex = {df_titles.index(slb_2)};
+            var nextIndex = (currentIndex + 1) % {len(df_titles)};
+            var nextTitle = {df_titles}[nextIndex];
+            document.querySelector('input[value="' + nextTitle + '"]').click();
+        }}
+    }}
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     """, unsafe_allow_html=True)
 
     # Botón para eliminar el video
     with st.container():
         col15, col16, col17, col18, col19 = st.columns([3,1,1,1,2])
-        with col15:
+        with col15:         
             if st.button("Excluir vídeo"):
                 delete_video(df_video['Url'])
                 st.success("Vídeo excluído")
                 st.rerun()
 
-    # Sección para agregar videos
     with st.sidebar:
         st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#1717dc;" /> """, unsafe_allow_html=True)
         centrar_texto("Adicionar vídeo", 2, "white")
