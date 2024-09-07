@@ -55,10 +55,16 @@ def extract_video_id(url):
 def get_video_title(url):
     try:
         response = requests.get(url)
-        response.raise_for_status()
+        response.raise_for_status()  # Verifica si la solicitud fue exitosa
         soup = BeautifulSoup(response.text, 'html.parser')
-        title = soup.find('meta', property='og:title')['content']
-        return title
+        
+        # Buscar la meta etiqueta de título de Open Graph
+        title_tag = soup.find('meta', property='og:title')
+        if title_tag and 'content' in title_tag.attrs:
+            return title_tag['content']
+        else:
+            st.error("No se encontró la etiqueta de título en el video.")
+            return None
     except Exception as e:
         st.error(f"Error al obtener el título del video: {e}")
         return None
