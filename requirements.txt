@@ -1,5 +1,5 @@
 gspread
 oauth2client
 google-api-python-client
-pytube
+bs4
 numpy==1.26.4
