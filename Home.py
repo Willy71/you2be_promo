@@ -3,7 +3,8 @@ import pandas as pd
 import re
 import gspread
 from google.oauth2.service_account import Credentials
-from pytube import YouTube
+from bs4 import BeautifulSoup
+import requests
 
 # Configuración de la página
 st.set_page_config(
@@ -35,10 +36,6 @@ try:
 except gspread.exceptions.SpreadsheetNotFound:
     st.error(f"A planilha com a chave não foi encontrada '{SPREADSHEET_KEY}'.")
 
-# Configuración de la API de YouTube
-YOUTUBE_API_KEY = st.secrets["youtube"]
-#youtube = YOUTUBE_API_KEY
-
 # Funciones auxiliares
 def centrar_texto(texto, tamanho, color):
     st.markdown(f"<h{tamanho} style='text-align: center; color: {color}'>{texto}</h{tamanho}>", unsafe_allow_html=True)
@@ -57,8 +54,11 @@ def extract_video_id(url):
 
 def get_video_title(url):
     try:
-        yt = YouTube(url)
-        return yt.title
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        title = soup.find('meta', property='og:title')['content']
+        return title
     except Exception as e:
         st.error(f"Error al obtener el título del video: {e}")
         return None
