@@ -19,8 +19,16 @@ reduce_space ="""
             }
             </style>
             """
+
+reduce_space_sidebar ="""
+            <style type="text/css">
+            div[data-testid="stAppViewBlockContainer"]{
+                padding-top:0px;
+            }
+            </style>
+            """
 st.markdown(reduce_space, unsafe_allow_html=True)
-#st.sidebar.markdown(reduce_space, unsafe_allow_html=True)
+st.sidebar.markdown(reduce_space_sidebar, unsafe_allow_html=True)
 
 #=============================================================================================================================
 # Conexión con Google Sheets
