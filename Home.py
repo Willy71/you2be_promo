@@ -79,7 +79,7 @@ def main():
 
     # Sidebar para seleccionar videos
     with st.sidebar:
-        centrar_texto("Videos", 2, 'white')
+        #centrar_texto("Videos", 2, 'white')
 
         # Mostrar las categorías
         df_1 = df["Category"].unique()
