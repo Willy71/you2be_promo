@@ -35,6 +35,10 @@ try:
 except gspread.exceptions.SpreadsheetNotFound:
     st.error(f"A planilha com a chave não foi encontrada '{SPREADSHEET_KEY}'.")
 
+# Configuración de la API de YouTube
+YOUTUBE_API_KEY = 'YOUR_YOUTUBE_API_KEY'
+youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
+
 # Funciones auxiliares
 def centrar_texto(texto, tamanho, color):
     st.markdown(f"<h{tamanho} style='text-align: center; color: {color}'>{texto}</h{tamanho}>", unsafe_allow_html=True)
