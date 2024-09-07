@@ -37,7 +37,7 @@ except gspread.exceptions.SpreadsheetNotFound:
 
 # Configuración de la API de YouTube
 YOUTUBE_API_KEY = st.secrets["youtube"]
-#youtube = YOUTUBE_API_KEY
+youtube = YOUTUBE_API_KEY
 
 # Funciones auxiliares
 def centrar_texto(texto, tamanho, color):
