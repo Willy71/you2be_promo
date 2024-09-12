@@ -3,14 +3,13 @@ import pandas as pd
 import re
 import gspread
 from google.oauth2.service_account import Credentials
-from bs4 import BeautifulSoup
-import requests
+from pytube import YouTube
 
 # Configuración de la página
 st.set_page_config(page_title="You 2 be", page_icon="▶️")
 
 # Reducir espacio en la parte superior
-reduce_space ="""
+reduce_space = """
             <style type="text/css">
             div[data-testid="stAppViewBlockContainer"]{
                 padding-top:30px;
@@ -51,15 +50,8 @@ def extract_video_id(url):
 
 def get_video_title(url):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        title_tag = soup.find('meta', property='og:title')
-        if title_tag and 'content' in title_tag.attrs:
-            return title_tag['content']
-        else:
-            st.error("No se encontró la etiqueta de título en el video.")
-            return None
+        yt = YouTube(url)
+        return yt.title
     except Exception as e:
         st.error(f"Error al obtener el título del video: {e}")
         return None
@@ -109,6 +101,8 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
+    st.text("")
+
     # Botón para eliminar el video
     with st.container():
         col15, col16, col17, col18, col19 = st.columns([3,1,1,1,2])
@@ -144,3 +138,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
