@@ -83,7 +83,7 @@ def main():
 
         if not df_filtered.empty:
             df_titles = df_filtered["Title"].unique()
-            df_titles = sorted(df_titles)
+            #df_titles = sorted(df_titles)
             slb_2 = st.radio("Selecione um vídeo para reproduzir", df_titles)
 
             df_video = df_filtered[df_filtered["Title"] == slb_2].iloc[0]
